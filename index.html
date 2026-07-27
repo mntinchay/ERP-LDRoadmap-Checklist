@@ -302,9 +302,9 @@ const GRAPH_SCOPES = ['Sites.ReadWrite.All'];
 
 const SP_HOSTNAME = 'healthyoptionsph.sharepoint.com';
 const SP_SITE_PATH = '/sites/IT-SP';
-const SP_FOLDER_PATH = 'IT Team Folder/27 BC_LS/DevEnvironment/ERP L&D Checklist';
-const SP_FILE_NAME = 'ERPLD-database.json';
-const SP_FOLDER_VIEW_URL = 'https://healthyoptionsph.sharepoint.com/sites/IT-SP/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FIT%2DSP%2FShared%20Documents%2FIT%20Team%20Folder%2F27%20BC%5FLS%2FDevEnvironment%2FERP%20L%26D%20Checklist&viewid=4a09b0de%2D6cf4%2D4bcc%2D8fbd%2D0c77750b4636';
+const SP_FOLDER_PATH = 'IT Team Folder/27 BC_LS/DevEnvironment/BC Object and Version Control Monitoring';
+const SP_FILE_NAME = 'bcovc-database.json';
+const SP_FOLDER_VIEW_URL = 'https://healthyoptionsph.sharepoint.com/sites/IT-SP/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FIT%2DSP%2FShared%20Documents%2FIT%20Team%20Folder%2F27%20BC%5FLS%2FDevEnvironment%2FBC%20Object%20and%20Version%20Control%20Monitoring&viewid=4a09b0de%2D6cf4%2D4bcc%2D8fbd%2D0c77750b4636';
 const SP_FILE_PATH = `${SP_FOLDER_PATH}/${SP_FILE_NAME}`;
 /* ==================================================================== */
 
@@ -314,6 +314,7 @@ let spSiteId = null;
 let spDriveId = null;
 let spConnected = false;
 let spConnectError = null;
+let spNeedsSignIn = false;
 let cloudSyncTimeout = null;
 
 function spConfigured(){
@@ -356,11 +357,17 @@ async function connectToSharePoint(){
       account = accounts[0];
     }
     if(!account){
-      // No active session — send the user straight to Microsoft sign-in.
-      await msalApp.loginRedirect({ scopes: GRAPH_SCOPES });
-      return; // page navigates away; execution stops here
+      // No active session — show a sign-in button instead of auto-redirecting.
+      // (Some browsers/extensions block automatic top-level navigations that
+      // aren't tied directly to a user click.)
+      spConnected = false;
+      spNeedsSignIn = true;
+      setSyncStatus("not signed in");
+      render();
+      return;
     }
     spAccount = account;
+    spNeedsSignIn = false;
     await resolveSiteAndDrive();
     spConnected = true;
     spConnectError = null;
@@ -372,6 +379,21 @@ async function connectToSharePoint(){
     setSyncStatus("connection failed");
   }
   render();
+}
+
+async function signInToSharePoint(){
+  const msalApp = initMsal();
+  try{
+    setSyncStatus("connecting…");
+    await msalApp.loginRedirect({ scopes: GRAPH_SCOPES });
+    // page navigates away; execution stops here
+  }catch(err){
+    console.error(err);
+    spConnected = false;
+    spConnectError = err.message || "Connection failed";
+    setSyncStatus("connection failed");
+    render();
+  }
 }
 
 async function getGraphToken(){
@@ -617,23 +639,31 @@ function renderGate(app){
   const configured = spConfigured();
   const wrap = document.createElement("div");
   wrap.style.gridColumn = "1 / -1";
-  let heading, message;
+  let heading, message, showSignIn = false;
   if(!configured){
     heading = "SharePoint sync not configured";
     message = "Add your MSAL_CLIENT_ID and SharePoint site details near the top of the script before this roadmap can be used.";
   }else if(spConnectError){
     heading = "Access denied";
     message = "Could not verify a SharePoint session. Reload the page to try again.";
+  }else if(spNeedsSignIn){
+    heading = "Sign in required";
+    message = "Sign in with your Microsoft account to load and sync this roadmap with SharePoint.";
+    showSignIn = true;
   }else{
     heading = "Connecting to SharePoint…";
     message = "Access is granted only once this session is verified against SharePoint.";
   }
   wrap.innerHTML = `
-    <div class="panel empty-state" style="max-width:480px;margin:60px auto;">
+    <div class="panel empty-state" style="max-width:480px;margin:60px auto; text-align:center;">
       <h3>${heading}</h3>
       <p>${message}</p>
+      ${showSignIn ? '<button class="primary" id="spSignInBtn" style="margin-top:16px;">Sign in with Microsoft</button>' : ''}
     </div>
   `;
+  if(showSignIn){
+    wrap.querySelector("#spSignInBtn").addEventListener("click", signInToSharePoint);
+  }
   app.appendChild(wrap);
 }
 
