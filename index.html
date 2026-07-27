@@ -258,7 +258,7 @@
   .save-indicator.show{ opacity:1; }
 </style>
 </head>
-<script src="https://alcdn.msauth.net/browser/3.14.0/js/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.1/lib/msal-browser.min.js" onerror="window.__MSAL_LOAD_FAILED=true"></script>
 <body>
 
 <div class="topbar">
@@ -308,7 +308,20 @@ const SP_FOLDER_VIEW_URL = 'https://healthyoptionsph.sharepoint.com/sites/IT-SP/
 const SP_FILE_PATH = `${SP_FOLDER_PATH}/${SP_FILE_NAME}`;
 /* ==================================================================== */
 
+// If this window IS the popup MSAL opened for sign-in, don't boot the app in it —
+// MSAL's own popup-handling code takes over and closes it automatically.
+const IS_AUTH_POPUP = !!(window.opener && window.opener !== window && /[?&#](code|error|state)=/.test(window.location.href));
+
 let msalInstance = null;
+if(typeof msal !== "undefined" && MSAL_CLIENT_ID){
+  msalInstance = new msal.PublicClientApplication({
+    auth: { clientId: MSAL_CLIENT_ID, authority: `https://login.microsoftonline.com/${MSAL_TENANT}`, redirectUri: MSAL_REDIRECT_URI },
+    // sessionStorage only — cleared when the tab closes. This holds MSAL's own
+    // short-lived OAuth session, not the app data (which lives only in SharePoint).
+    cache: { cacheLocation: "sessionStorage", storeAuthStateInCookie: false }
+  });
+}
+
 let spAccount = null;
 let spSiteId = null;
 let spDriveId = null;
@@ -327,57 +340,71 @@ function setSyncStatus(text){
   if(el) el.textContent = text;
 }
 
-function initMsal(){
-  if(!spConfigured() || typeof msal === "undefined") return null;
-  if(!msalInstance){
-    msalInstance = new msal.PublicClientApplication({
-      auth: {
-        clientId: MSAL_CLIENT_ID,
-        authority: `https://login.microsoftonline.com/${MSAL_TENANT}`,
-        redirectUri: MSAL_REDIRECT_URI
-      },
-      cache: { cacheLocation: "sessionStorage" }
-    });
+// interactive=true allows a loginPopup() call — only do this from a direct user click,
+// since browsers block popups not tied to a user gesture.
+async function acquireGraphToken(interactive){
+  if(!msalInstance) throw new Error("Microsoft sign-in is not configured yet.");
+  const accounts = msalInstance.getAllAccounts();
+  if(accounts.length){
+    try{
+      const res = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: accounts[0] });
+      return res.accessToken;
+    }catch(e){ /* fall through to interactive */ }
   }
-  return msalInstance;
+  if(!interactive) throw new Error("Not signed in to Microsoft.");
+  const res = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
+  msalInstance.setActiveAccount(res.account);
+  spAccount = res.account;
+  return res.accessToken;
 }
 
 async function connectToSharePoint(){
+  if(IS_AUTH_POPUP) return; // this window is just the MSAL popup; let MSAL handle it
   if(!spConfigured()){
     spConnected = false;
     render();
     return;
   }
-  if(typeof msal === "undefined"){
-    // The msal-browser script from Microsoft's CDN never loaded — commonly
-    // caused by an ad/tracker blocker (e.g. Brave Shields) blocking
-    // alcdn.msauth.net, a network/firewall block, or a transient CDN issue.
+  if(typeof msal === "undefined" || !msalInstance){
+    // The msal-browser script never loaded — commonly an ad/tracker blocker
+    // (e.g. Brave Shields), a network/firewall block, or a CDN issue.
     spConnected = false;
     spLibraryMissing = true;
     setSyncStatus("library blocked");
     render();
     return;
   }
-  const msalApp = initMsal();
+  const accounts = msalInstance.getAllAccounts();
+  if(!accounts.length){
+    // Not signed in yet — show a sign-in button. Signing in requires a popup,
+    // which requires a direct user click, so we don't try automatically here.
+    spConnected = false;
+    spNeedsSignIn = true;
+    setSyncStatus("not signed in");
+    render();
+    return;
+  }
+  spAccount = accounts[0];
   try{
     setSyncStatus("connecting…");
-    const redirectResult = await msalApp.handleRedirectPromise();
-    let account = redirectResult && redirectResult.account;
-    if(!account){
-      const accounts = msalApp.getAllAccounts();
-      account = accounts[0];
-    }
-    if(!account){
-      // No active session — show a sign-in button instead of auto-redirecting.
-      // (Some browsers/extensions block automatic top-level navigations that
-      // aren't tied directly to a user click.)
-      spConnected = false;
-      spNeedsSignIn = true;
-      setSyncStatus("not signed in");
-      render();
-      return;
-    }
-    spAccount = account;
+    await resolveSiteAndDrive();
+    spConnected = true;
+    spConnectError = null;
+    spNeedsSignIn = false;
+    await loadFromSharePoint();
+  }catch(err){
+    console.error(err);
+    spConnected = false;
+    spConnectError = err.message || "Connection failed";
+    setSyncStatus("connection failed");
+  }
+  render();
+}
+
+async function signInToSharePoint(){
+  try{
+    setSyncStatus("connecting…");
+    await acquireGraphToken(true); // opens the Microsoft popup — this call is from a user click
     spNeedsSignIn = false;
     await resolveSiteAndDrive();
     spConnected = true;
@@ -392,38 +419,8 @@ async function connectToSharePoint(){
   render();
 }
 
-async function signInToSharePoint(){
-  const msalApp = initMsal();
-  try{
-    setSyncStatus("connecting…");
-    await msalApp.loginRedirect({ scopes: GRAPH_SCOPES });
-    // page navigates away; execution stops here
-  }catch(err){
-    console.error(err);
-    spConnected = false;
-    spConnectError = err.message || "Connection failed";
-    setSyncStatus("connection failed");
-    render();
-  }
-}
-
-async function getGraphToken(){
-  const msalApp = initMsal();
-  const accounts = msalApp.getAllAccounts();
-  const account = spAccount || accounts[0];
-  if(!account) throw new Error("Not signed in");
-  try{
-    const res = await msalApp.acquireTokenSilent({ scopes: GRAPH_SCOPES, account });
-    return res.accessToken;
-  }catch(e){
-    // Session/token expired — re-authenticate via redirect (no button needed).
-    await msalApp.acquireTokenRedirect({ scopes: GRAPH_SCOPES, account });
-    throw new Error("Re-authenticating — page will reload.");
-  }
-}
-
 async function graphFetch(path, options){
-  const token = await getGraphToken();
+  const token = await acquireGraphToken(true);
   const res = await fetch(`https://graph.microsoft.com/v1.0${path}`, {
     ...options,
     headers: { ...(options && options.headers), Authorization: `Bearer ${token}` }
@@ -1226,9 +1223,11 @@ document.getElementById("importFile").addEventListener("change", e => {
   e.target.value = "";
 });
 
-render();
-setSyncStatus(spConfigured() ? "connecting…" : "not configured");
-connectToSharePoint();
+if(!IS_AUTH_POPUP){
+  render();
+  setSyncStatus(spConfigured() ? "connecting…" : "not configured");
+  connectToSharePoint();
+}
 </script>
 </body>
 </html>
