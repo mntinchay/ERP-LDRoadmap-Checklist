@@ -274,6 +274,9 @@
   </div>
   <div class="topbar-actions">
     <span id="syncStatus" style="font-size:11.5px;color:#CBD5E5;"></span>
+    <a href="#" id="openSpFolderBtn" target="_blank" rel="noopener" style="text-decoration:none;">
+      <button type="button">⧉ Open in SharePoint</button>
+    </a>
     <button id="exportBtn">⭳ Export all data</button>
     <button id="importBtn">⭱ Import</button>
     <input type="file" id="importFile" accept="application/json">
@@ -294,27 +297,19 @@ appState = {
 
 /* All data lives in SharePoint only — no local browser storage is used. */
 
-/* =====================================================================
-   SHAREPOINT SYNC CONFIG — fill these in
-   =====================================================================
-   CLIENT_ID    : Application (client) ID from your Azure AD app registration
-   TENANT_ID    : Directory (tenant) ID — or leave as "common" for multi-tenant
-   REDIRECT_URI : the exact URL this file is hosted at (must be registered
-                  in Azure AD → Authentication → Single-page application)
-   SITE_HOSTNAME: your SharePoint hostname, e.g. "yourcompany.sharepoint.com"
-   SITE_PATH    : the site path, e.g. "/sites/YourSiteName"
-   FILE_PATH    : path + filename within the site's default document library,
-                  e.g. "roadmap-data.json" or "Shared Documents/roadmap-data.json"
-   ===================================================================== */
-const SP_CONFIG = {
-  CLIENT_ID: "352803ac-f3a7-4bb6-8499-bc673f68a948",
-  TENANT_ID: "healthyoptionsph.onmicrosoft.com",
-  REDIRECT_URI: window.location.href.split("#")[0].split("?")[0],
-  SITE_HOSTNAME: "healthyoptionsph.sharepoint.com",
-  SITE_PATH: "/sites/IT-SP/IT Team Folder/27 BC_LS/DevEnvironment/ERP L&D Checklist",
-  FILE_PATH: "roadmap-data.json"
-};
-const SP_SCOPES = ["Sites.ReadWrite.All", "Files.ReadWrite.All"];
+/* ===================== SHAREPOINT SYNC CONFIG ===================== */
+const MSAL_CLIENT_ID = '352803ac-f3a7-4bb6-8499-bc673f68a948';
+const MSAL_TENANT = 'healthyoptionsph.onmicrosoft.com';
+const MSAL_REDIRECT_URI = window.location.origin + window.location.pathname;
+const GRAPH_SCOPES = ['Sites.ReadWrite.All'];
+
+const SP_HOSTNAME = 'healthyoptionsph.sharepoint.com';
+const SP_SITE_PATH = '/sites/IT-SP';
+const SP_FOLDER_PATH = 'IT Team Folder/27 BC_LS/DevEnvironment/BC Object and Version Control Monitoring';
+const SP_FILE_NAME = 'bcovc-database.json';
+const SP_FOLDER_VIEW_URL = 'https://healthyoptionsph.sharepoint.com/sites/IT-SP/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FIT%2DSP%2FShared%20Documents%2FIT%20Team%20Folder%2F27%20BC%5FLS%2FDevEnvironment%2FBC%20Object%20and%20Version%20Control%20Monitoring&viewid=4a09b0de%2D6cf4%2D4bcc%2D8fbd%2D0c77750b4636';
+const SP_FILE_PATH = `${SP_FOLDER_PATH}/${SP_FILE_NAME}`;
+/* ==================================================================== */
 
 let msalInstance = null;
 let spAccount = null;
@@ -325,7 +320,7 @@ let spConnectError = null;
 let cloudSyncTimeout = null;
 
 function spConfigured(){
-  return SP_CONFIG.CLIENT_ID && SP_CONFIG.CLIENT_ID.indexOf("PASTE_") !== 0;
+  return MSAL_CLIENT_ID && MSAL_CLIENT_ID.indexOf("PASTE_") !== 0;
 }
 
 function setSyncStatus(text){
@@ -338,9 +333,9 @@ function initMsal(){
   if(!msalInstance){
     msalInstance = new msal.PublicClientApplication({
       auth: {
-        clientId: SP_CONFIG.CLIENT_ID,
-        authority: `https://login.microsoftonline.com/${SP_CONFIG.TENANT_ID}`,
-        redirectUri: SP_CONFIG.REDIRECT_URI
+        clientId: MSAL_CLIENT_ID,
+        authority: `https://login.microsoftonline.com/${MSAL_TENANT}`,
+        redirectUri: MSAL_REDIRECT_URI
       },
       cache: { cacheLocation: "sessionStorage" }
     });
@@ -365,7 +360,7 @@ async function connectToSharePoint(){
     }
     if(!account){
       // No active session — send the user straight to Microsoft sign-in.
-      await msalApp.loginRedirect({ scopes: SP_SCOPES });
+      await msalApp.loginRedirect({ scopes: GRAPH_SCOPES });
       return; // page navigates away; execution stops here
     }
     spAccount = account;
@@ -388,11 +383,11 @@ async function getGraphToken(){
   const account = spAccount || accounts[0];
   if(!account) throw new Error("Not signed in");
   try{
-    const res = await msalApp.acquireTokenSilent({ scopes: SP_SCOPES, account });
+    const res = await msalApp.acquireTokenSilent({ scopes: GRAPH_SCOPES, account });
     return res.accessToken;
   }catch(e){
     // Session/token expired — re-authenticate via redirect (no button needed).
-    await msalApp.acquireTokenRedirect({ scopes: SP_SCOPES, account });
+    await msalApp.acquireTokenRedirect({ scopes: GRAPH_SCOPES, account });
     throw new Error("Re-authenticating — page will reload.");
   }
 }
@@ -411,7 +406,7 @@ async function graphFetch(path, options){
 }
 
 async function resolveSiteAndDrive(){
-  const siteRes = await graphFetch(`/sites/${SP_CONFIG.SITE_HOSTNAME}:${SP_CONFIG.SITE_PATH}`);
+  const siteRes = await graphFetch(`/sites/${SP_HOSTNAME}:${SP_SITE_PATH}`);
   const site = await siteRes.json();
   spSiteId = site.id;
   const driveRes = await graphFetch(`/sites/${spSiteId}/drive`);
@@ -422,7 +417,7 @@ async function resolveSiteAndDrive(){
 async function loadFromSharePoint(){
   try{
     setSyncStatus("loading…");
-    const res = await graphFetch(`/drives/${spDriveId}/root:/${encodeURIComponent(SP_CONFIG.FILE_PATH)}:/content`);
+    const res = await graphFetch(`/drives/${spDriveId}/root:/${encodeURIComponent(SP_FILE_PATH)}:/content`);
     const remote = await res.json();
     if(remote && remote.roles && remote.personnel){
       state = remote;
@@ -445,7 +440,7 @@ async function saveToSharePointNow(){
   if(!spConfigured() || !spAccount || !spDriveId) return;
   try{
     setSyncStatus("saving…");
-    await graphFetch(`/drives/${spDriveId}/root:/${encodeURIComponent(SP_CONFIG.FILE_PATH)}:/content`, {
+    await graphFetch(`/drives/${spDriveId}/root:/${encodeURIComponent(SP_FILE_PATH)}:/content`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(state, null, 2)
@@ -628,7 +623,7 @@ function renderGate(app){
   let heading, message;
   if(!configured){
     heading = "SharePoint sync not configured";
-    message = "Add your Client ID and site details in SP_CONFIG before this roadmap can be used.";
+    message = "Add your MSAL_CLIENT_ID and SharePoint site details near the top of the script before this roadmap can be used.";
   }else if(spConnectError){
     heading = "Access denied";
     message = "Could not verify a SharePoint session. Reload the page to try again.";
@@ -1191,6 +1186,7 @@ document.getElementById("importFile").addEventListener("change", e => {
 });
 
 render();
+document.getElementById("openSpFolderBtn").href = SP_FOLDER_VIEW_URL;
 setSyncStatus(spConfigured() ? "connecting…" : "not configured");
 connectToSharePoint();
 </script>
