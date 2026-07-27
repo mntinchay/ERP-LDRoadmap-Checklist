@@ -274,9 +274,6 @@
   </div>
   <div class="topbar-actions">
     <span id="syncStatus" style="font-size:11.5px;color:#CBD5E5;"></span>
-    <a href="#" id="openSpFolderBtn" target="_blank" rel="noopener" style="text-decoration:none;">
-      <button type="button">⧉ Open in SharePoint</button>
-    </a>
     <button id="exportBtn">⭳ Export all data</button>
     <button id="importBtn">⭱ Import</button>
     <input type="file" id="importFile" accept="application/json">
@@ -306,7 +303,7 @@ const GRAPH_SCOPES = ['Sites.ReadWrite.All'];
 const SP_HOSTNAME = 'healthyoptionsph.sharepoint.com';
 const SP_SITE_PATH = '/sites/IT-SP';
 const SP_FOLDER_PATH = 'IT Team Folder/27 BC_LS/DevEnvironment/ERP L&D Checklist';
-const SP_FILE_NAME = 'Erpldroadmap-database.json';
+const SP_FILE_NAME = 'ERPLD-database.json';
 const SP_FOLDER_VIEW_URL = 'https://healthyoptionsph.sharepoint.com/sites/IT-SP/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FIT%2DSP%2FShared%20Documents%2FIT%20Team%20Folder%2F27%20BC%5FLS%2FDevEnvironment%2FERP%20L%26D%20Checklist&viewid=4a09b0de%2D6cf4%2D4bcc%2D8fbd%2D0c77750b4636';
 const SP_FILE_PATH = `${SP_FOLDER_PATH}/${SP_FILE_NAME}`;
 /* ==================================================================== */
@@ -1186,7 +1183,6 @@ document.getElementById("importFile").addEventListener("change", e => {
 });
 
 render();
-document.getElementById("openSpFolderBtn").href = SP_FOLDER_VIEW_URL;
 setSyncStatus(spConfigured() ? "connecting…" : "not configured");
 connectToSharePoint();
 </script>
