@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talent Development Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EEF1F6;
+    --surface: #FFFFFF;
+    --surface-alt: #F5F7FA;
+    --border: #DCE2EA;
+    --border-soft: #E7EBF1;
+    --navy: #10233F;
+    --navy-2: #1B3A63;
+    --steel: #3D5A80;
+    --gold: #B8873B;
+    --gold-bg: #FBF2E3;
+    --text: #1F2937;
+    --text-muted: #5B6472;
+    --text-dim: #8A93A1;
+    --success: #1E824C;
+    --success-bg: #E3F3EA;
+    --danger: #B3261E;
+    --danger-bg: #FBEAE9;
+    --radius: 8px;
+    --heading: 'Libre Franklin', 'Segoe UI', sans-serif;
+    --body: 'Inter', -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    font-size:14px;
+  }
+  h1,h2,h3,h4{font-family:var(--heading);}
+  button, .btn, select, input, textarea{font-family:var(--body);}
+  button{
+    cursor:pointer;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    border-radius:6px;
+    padding:7px 12px;
+    font-size:12.5px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition: all .15s;
+  }
+  button:hover{ border-color: var(--steel); color: var(--navy-2); }
+  button.primary{ background: var(--navy); border-color: var(--navy); color:#fff; }
+  button.primary:hover{ background: var(--navy-2); }
+  button.ghost{ background:transparent; border-color:transparent; padding:4px 6px; }
+  button.danger-ghost{ background:transparent; border-color:transparent; color: var(--danger); padding:4px 6px; }
+  button.danger-ghost:hover{ background: var(--danger-bg); }
+  button.icon-only{ padding:5px 8px; }
+  button:disabled{ opacity:.4; cursor:not-allowed; }
+  input[type=text], input[type=date], select, textarea{
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:7px 9px;
+    font-size:13px;
+    color:var(--text);
+    background:#fff;
+    width:100%;
+  }
+  input[type=text]:focus, select:focus, textarea:focus{ outline:2px solid #C9D6EA; border-color:var(--steel); }
+  textarea{resize:vertical; min-height:56px;}
+  a{color:var(--steel);}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    background: var(--navy);
+    color:#fff;
+    padding:12px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+    position:sticky; top:0; z-index:60;
+    box-shadow: 0 1px 0 rgba(0,0,0,.15);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .mark{
+    width:34px;height:34px;border-radius:6px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family:var(--heading); font-weight:800; font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .brand .titles{display:flex; flex-direction:column; line-height:1.25;}
+  .brand .titles strong{font-family:var(--heading); font-weight:700; font-size:15px;}
+  .brand .titles span{font-size:11px; color:#B9C4D6;}
+
+  .tabs{ display:flex; gap:4px; background:rgba(255,255,255,.08); padding:3px; border-radius:8px; }
+  .tabs button{
+    background:transparent; border:none; color:#CBD5E5;
+    padding:7px 14px; border-radius:6px; font-size:12.5px;
+  }
+  .tabs button.active{ background:#fff; color:var(--navy); }
+  .tabs button:hover:not(.active){ color:#fff; }
+
+  .topbar-actions{display:flex; gap:8px; align-items:center;}
+  .topbar-actions button{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.15); color:#fff; }
+  .topbar-actions button:hover{ background:rgba(255,255,255,.16); color:#fff; }
+  input[type=file]{display:none;}
+
+  /* ===== Layout ===== */
+  .wrap{ max-width:1320px; margin:0 auto; padding:24px; display:grid; grid-template-columns: 300px 1fr; gap:20px; }
+  @media (max-width: 900px){ .wrap{grid-template-columns:1fr;} }
+
+  .panel{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    padding:16px;
+  }
+  .panel + .panel{ margin-top:16px; }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .panel-head h3{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); }
+
+  /* ===== Sidebar list items ===== */
+  .list{ display:flex; flex-direction:column; gap:6px; }
+  .list-item{
+    border:1px solid var(--border-soft);
+    border-radius:7px;
+    padding:10px 12px;
+    cursor:pointer;
+    display:flex; flex-direction:column; gap:4px;
+    transition: border-color .15s, background .15s;
+  }
+  .list-item:hover{ border-color: var(--steel); }
+  .list-item.active{ border-color: var(--navy); background: var(--surface-alt); }
+  .list-item .li-top{ display:flex; justify-content:space-between; align-items:center; }
+  .list-item .li-name{ font-weight:600; font-size:13.5px; }
+  .list-item .li-role{ font-size:11.5px; color:var(--text-muted); }
+  .li-bar-outer{ height:5px; background:var(--border-soft); border-radius:3px; overflow:hidden; margin-top:2px;}
+  .li-bar-inner{ height:100%; background: var(--gold); }
+  .li-pct{ font-size:11px; color:var(--text-dim); font-variant-numeric: tabular-nums; }
+  .empty-note{ font-size:12.5px; color:var(--text-dim); padding:8px 2px; }
+
+  /* ===== Hero ===== */
+  .hero{ margin-bottom:18px; }
+  .hero .eyebrow{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--gold); font-weight:700; margin-bottom:6px; }
+  .hero h1{ font-size: clamp(22px,3vw,28px); font-weight:800; color:var(--navy); margin-bottom:6px; }
+  .hero p{ color:var(--text-muted); max-width:70ch; font-size:13.5px; }
+
+  /* ===== Person detail card ===== */
+  .person-card{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .person-fields{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; }
+  @media (max-width:760px){ .person-fields{ grid-template-columns:1fr 1fr; } }
+  .field-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px; display:block; }
+  .person-progress-row{ display:flex; align-items:center; gap:14px; margin-top:16px; }
+  .ring-pct{ font-family:var(--heading); font-weight:800; font-size:26px; color:var(--navy); }
+  .progress-bar-outer{ flex:1; height:8px; background:var(--border-soft); border-radius:4px; overflow:hidden; }
+  .progress-bar-inner{ height:100%; background: linear-gradient(90deg, var(--steel), var(--gold)); }
+  .person-actions{ display:flex; gap:8px; margin-top:14px; }
+
+  /* ===== Roadmap month cards (tracker + builder share look) ===== */
+  .month-card{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .month-band{ height:4px; }
+  .month-head{
+    padding:14px 18px;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+    cursor:pointer;
+  }
+  .month-head:hover{ background: var(--surface-alt); }
+  .tag-pill{
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 9px; border-radius:20px; display:inline-block; margin-bottom:7px;
+  }
+  input.sched-input{
+    width:auto;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:20px;
+    background: var(--gold-bg);
+    border:1px solid #E9D3A8;
+    color: var(--navy-2);
+    cursor:pointer;
+  }
+  input.sched-input:focus{ outline:2px solid #E9D3A8; }
+  .month-head h2{ font-size:15.5px; font-weight:700; color:var(--navy); }
+  .month-head .sub{ font-size:12px; color:var(--text-muted); margin-top:3px; }
+  .month-right{ text-align:right; flex-shrink:0; display:flex; align-items:center; gap:12px; }
+  .month-pct{ font-family:var(--heading); font-weight:800; font-size:18px; color:var(--navy); }
+  .chevron{ color:var(--text-dim); transition: transform .2s; display:inline-block; margin-left:8px; }
+  .month-card.open .chevron{ transform:rotate(90deg); }
+  .month-body{ display:none; padding:4px 18px 18px; border-top:1px solid var(--border-soft); }
+  .month-card.open .month-body{ display:block; }
+
+  .week-label{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim);
+    margin:14px 0 4px; padding-top:10px; border-top:1px solid var(--border-soft); font-weight:700;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .week-label:first-child{ border-top:none; margin-top:6px; padding-top:0; }
+  .topic{
+    display:flex; align-items:flex-start; gap:9px; padding:7px 4px; border-radius:6px; cursor:pointer; font-size:13.5px;
+  }
+  .topic:hover{ background: var(--surface-alt); }
+  .topic input[type=checkbox]{ margin-top:3px; width:15px; height:15px; accent-color:var(--success); flex-shrink:0; cursor:pointer; }
+  .topic.checked span{ color:var(--text-dim); text-decoration:line-through; }
+
+  .meta-box{ margin-top:14px; padding:11px 13px; background:var(--surface-alt); border:1px solid var(--border-soft); border-radius:7px; }
+  .meta-box .label{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:3px; font-weight:700; }
+  .meta-box p{ font-size:12.5px; color:var(--text-muted); }
+  .notes-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-top:14px; display:block; font-weight:700; }
+  .notes-area{ width:100%; margin-top:8px; }
+
+  /* ===== Builder specific ===== */
+  .builder-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .builder-row input[type=text]{ flex:1; }
+  .edit-topic-row{ display:flex; align-items:center; gap:8px; padding:4px 0; }
+  .edit-topic-row input{ flex:1; }
+  .week-block{ border:1px dashed var(--border); border-radius:7px; padding:10px 12px; margin-top:10px; }
+  .week-block-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px; }
+  .week-block-head input[type=text]{ font-weight:700; max-width:220px; }
+  .add-topic-row{ display:flex; gap:8px; margin-top:6px; }
+  .add-topic-row input{ flex:1; }
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .field-grid .full{ grid-column:1/-1; }
+  .color-select-row{ display:flex; gap:6px; }
+  .color-swatch{
+    width:26px;height:26px;border-radius:6px; cursor:pointer; border:2px solid transparent;
+  }
+  .color-swatch.selected{ border-color: var(--navy); }
+  .month-toolbar{ display:flex; gap:6px; margin-left:8px; }
+  .divider{ border-top:1px solid var(--border-soft); margin:16px 0; }
+
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--text-muted);
+  }
+  .empty-state h3{ color:var(--navy); font-size:18px; margin-bottom:8px; }
+  .empty-state p{ font-size:13px; max-width:44ch; margin:0 auto 16px; }
+
+  footer{ max-width:1320px; margin:0 auto; padding:0 24px 40px; color:var(--text-dim); font-size:11.5px; }
+  .save-indicator{ font-size:11px; color:#8FE3B5; opacity:0; transition:opacity .3s; }
+  .save-indicator.show{ opacity:1; }
+</style>
+</head>
+<script src="https://alcdn.msauth.net/browser/3.14.0/js/msal-browser.min.js"></script>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">TD</div>
+    <div class="titles">
+      <strong>Talent Development Roadmap</strong>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-view="tracker">Personnel Tracker</button>
+    <button data-view="builder">Roadmap Builder</button>
+  </div>
+  <div class="topbar-actions">
+    <span id="syncStatus" style="font-size:11.5px;color:#CBD5E5;"></span>
+    <button id="exportBtn">⭳ Export all data</button>
+    <button id="importBtn">⭱ Import</button>
+    <input type="file" id="importFile" accept="application/json">
+  </div>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ============================= DATA MODEL =============================
+appState = {
+  roles: { [roleId]: { id, name, months: [ { id, title, phaseLabel, phaseColor, subtitle, deliverable, checkpoint,
+              weeks: [ { id, label, items: [ {id, text} ] } ] } ] } },
+  personnel: { [personId]: { id, name, title, roleId, startDate, checked: {itemId:true}, notes: {monthId:text} } },
+  ui: { view, selectedPersonId, selectedRoleId, openMonths: {monthId:bool} }
+}
+=========================================================================*/
+
+/* All data lives in SharePoint only — no local browser storage is used. */
+
+/* =====================================================================
+   SHAREPOINT SYNC CONFIG — fill these in
+   =====================================================================
+   CLIENT_ID    : Application (client) ID from your Azure AD app registration
+   TENANT_ID    : Directory (tenant) ID — or leave as "common" for multi-tenant
+   REDIRECT_URI : the exact URL this file is hosted at (must be registered
+                  in Azure AD → Authentication → Single-page application)
+   SITE_HOSTNAME: your SharePoint hostname, e.g. "yourcompany.sharepoint.com"
+   SITE_PATH    : the site path, e.g. "/sites/YourSiteName"
+   FILE_PATH    : path + filename within the site's default document library,
+                  e.g. "roadmap-data.json" or "Shared Documents/roadmap-data.json"
+   ===================================================================== */
+const SP_CONFIG = {
+  CLIENT_ID: "PASTE_CLIENT_ID_HERE",
+  TENANT_ID: "common",
+  REDIRECT_URI: window.location.href.split("#")[0].split("?")[0],
+  SITE_HOSTNAME: "yourcompany.sharepoint.com",
+  SITE_PATH: "/sites/YourSiteName",
+  FILE_PATH: "roadmap-data.json"
+};
+const SP_SCOPES = ["Sites.ReadWrite.All", "Files.ReadWrite.All"];
+
+let msalInstance = null;
+let spAccount = null;
+let spSiteId = null;
+let spDriveId = null;
+let spConnected = false;
+let spConnectError = null;
+let cloudSyncTimeout = null;
+
+function spConfigured(){
+  return SP_CONFIG.CLIENT_ID && SP_CONFIG.CLIENT_ID.indexOf("PASTE_") !== 0;
+}
+
+function setSyncStatus(text){
+  const el = document.getElementById("syncStatus");
+  if(el) el.textContent = text;
+}
+
+function initMsal(){
+  if(!spConfigured() || typeof msal === "undefined") return null;
+  if(!msalInstance){
+    msalInstance = new msal.PublicClientApplication({
+      auth: {
+        clientId: SP_CONFIG.CLIENT_ID,
+        authority: `https://login.microsoftonline.com/${SP_CONFIG.TENANT_ID}`,
+        redirectUri: SP_CONFIG.REDIRECT_URI
+      },
+      cache: { cacheLocation: "sessionStorage" }
+    });
+  }
+  return msalInstance;
+}
+
+async function connectToSharePoint(){
+  if(!spConfigured()){
+    spConnected = false;
+    render();
+    return;
+  }
+  const msalApp = initMsal();
+  try{
+    setSyncStatus("connecting…");
+    const redirectResult = await msalApp.handleRedirectPromise();
+    let account = redirectResult && redirectResult.account;
+    if(!account){
+      const accounts = msalApp.getAllAccounts();
+      account = accounts[0];
+    }
+    if(!account){
+      // No active session — send the user straight to Microsoft sign-in.
+      await msalApp.loginRedirect({ scopes: SP_SCOPES });
+      return; // page navigates away; execution stops here
+    }
+    spAccount = account;
+    await resolveSiteAndDrive();
+    spConnected = true;
+    spConnectError = null;
+    await loadFromSharePoint();
+  }catch(err){
+    console.error(err);
+    spConnected = false;
+    spConnectError = err.message || "Connection failed";
+    setSyncStatus("connection failed");
+  }
+  render();
+}
+
+async function getGraphToken(){
+  const msalApp = initMsal();
+  const accounts = msalApp.getAllAccounts();
+  const account = spAccount || accounts[0];
+  if(!account) throw new Error("Not signed in");
+  try{
+    const res = await msalApp.acquireTokenSilent({ scopes: SP_SCOPES, account });
+    return res.accessToken;
+  }catch(e){
+    // Session/token expired — re-authenticate via redirect (no button needed).
+    await msalApp.acquireTokenRedirect({ scopes: SP_SCOPES, account });
+    throw new Error("Re-authenticating — page will reload.");
+  }
+}
+
+async function graphFetch(path, options){
+  const token = await getGraphToken();
+  const res = await fetch(`https://graph.microsoft.com/v1.0${path}`, {
+    ...options,
+    headers: { ...(options && options.headers), Authorization: `Bearer ${token}` }
+  });
+  if(!res.ok){
+    const body = await res.text();
+    throw new Error(`Graph error ${res.status}: ${body}`);
+  }
+  return res;
+}
+
+async function resolveSiteAndDrive(){
+  const siteRes = await graphFetch(`/sites/${SP_CONFIG.SITE_HOSTNAME}:${SP_CONFIG.SITE_PATH}`);
+  const site = await siteRes.json();
+  spSiteId = site.id;
+  const driveRes = await graphFetch(`/sites/${spSiteId}/drive`);
+  const drive = await driveRes.json();
+  spDriveId = drive.id;
+}
+
+async function loadFromSharePoint(){
+  try{
+    setSyncStatus("loading…");
+    const res = await graphFetch(`/drives/${spDriveId}/root:/${encodeURIComponent(SP_CONFIG.FILE_PATH)}:/content`);
+    const remote = await res.json();
+    if(remote && remote.roles && remote.personnel){
+      state = remote;
+      if(!state.ui) state.ui = { view:"tracker", selectedPersonId:null, selectedRoleId:null, openMonths:{}, bulkAddOpen:false };
+      render();
+    }
+    setSyncStatus("☁ synced");
+  }catch(err){
+    if(String(err.message).includes("404")){
+      // no file yet — push current state as the first version
+      await saveToSharePointNow();
+    }else{
+      console.error(err);
+      setSyncStatus("sync error");
+    }
+  }
+}
+
+async function saveToSharePointNow(){
+  if(!spConfigured() || !spAccount || !spDriveId) return;
+  try{
+    setSyncStatus("saving…");
+    await graphFetch(`/drives/${spDriveId}/root:/${encodeURIComponent(SP_CONFIG.FILE_PATH)}:/content`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state, null, 2)
+    });
+    setSyncStatus("☁ synced");
+  }catch(err){
+    console.error(err);
+    setSyncStatus("sync error");
+  }
+}
+
+function scheduleCloudSave(){
+  if(!spConfigured() || !spAccount || !spDriveId) return;
+  clearTimeout(cloudSyncTimeout);
+  cloudSyncTimeout = setTimeout(saveToSharePointNow, 1500);
+}
+
+const COLORS = [
+  { name: "Navy",  hex: "#1B3A63" },
+  { name: "Gold",  hex: "#B8873B" },
+  { name: "Teal",  hex: "#2A7F7E" },
+  { name: "Plum",  hex: "#6B4C7A" },
+  { name: "Slate", hex: "#52606D" },
+  { name: "Rust",  hex: "#A24936" }
+];
+
+function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,9); }
+
+function seedRole(){
+  const mk = (title, phaseLabel, phaseColor, subtitle, deliverable, weeksRaw, checkpoint) => ({
+    id: uid("m"), title, phaseLabel, phaseColor, subtitle, deliverable, checkpoint: checkpoint || "",
+    weeks: weeksRaw.map(w => ({ id: uid("w"), label: w.label, items: w.items.map(t => ({ id: uid("i"), text: t })) }))
+  });
+  return {
+    id: uid("role"),
+    name: "Junior Software Developer — BC & LS Central",
+    months: [
+      mk("ERP Fundamentals", "Tech Phase", "#1B3A63",
+        "Understand Business Central as an ERP from a business-process perspective.",
+        "Document an end-to-end business process (e.g. Purchase-to-Pay) with sandbox screenshots.",
+        [
+          { label: "Week 1", items: ["Microsoft Dynamics 365 Business Central Overview", "Navigation & Role Centers"] },
+          { label: "Week 2", items: ["Standard Business Process — Supply Chain", "Standard Business Process — Inventory"] },
+          { label: "Week 3", items: ["Standard Business Process — Finance", "Standard Business Process — Sales"] },
+          { label: "Week 4", items: ["Master Data", "Posting Documents — Transfers", "Posting Documents — Assembly", "Posting Documents — Purchase"] }
+        ]),
+      mk("LS Central POS Operations", "Tech Phase", "#1B3A63",
+        "Understand retail operations from the POS side.",
+        "Perform and document a full retail day: open store → transactions → cash management → statement posting → replication.",
+        [
+          { label: "Week 1", items: ["POS Interface", "POS Profile"] },
+          { label: "Week 2", items: ["Store, Terminal, and Cash Management"] },
+          { label: "Week 3", items: ["Discounts & Promotions", "Payment Methods"] },
+          { label: "Week 4", items: ["POS Transactions and Statement Posting", "Replication"] }
+        ],
+        "Trainee should be able to explain the data flow from POS terminal to BC back office without assistance."),
+      mk("Dev Fundamentals", "Dev Phase", "#B8873B",
+        "Understand the technical architecture underneath BC / LS Central.",
+        "Pass the formal checkpoint review before advancing to AL development.",
+        [
+          { label: "Week 1", items: ["BC Architecture (Service Tier, SQL, Web Client)", "BC OnPrem vs BC SaaS (Production and Sandbox)"] },
+          { label: "Week 2", items: ["VS Code Connection — Local", "VS Code Connection — Cloud", "SQL Server Database Basics"] },
+          { label: "Week 3", items: ["Web Services and API", "Git Fundamentals"] },
+          { label: "Week 4", items: ["IIS Basics", "Checkpoint Review"] }
+        ],
+        "Can explain BC architecture end-to-end, connect VS Code to local & cloud environments independently, and perform basic Git operations. Gate before starting AL."),
+      mk("AL Dev Fundamentals", "Dev Phase", "#B8873B",
+        "Write first working AL code and publish a basic extension.",
+        "A small working extension (custom table + page + enum), published and debugged in sandbox.",
+        [
+          { label: "Week 1", items: ["AL Language Basics", "Variables & Data Types"] },
+          { label: "Week 2", items: ["Tables & Table Extensions"] },
+          { label: "Week 3", items: ["Pages & Page Extensions", "Enums"] },
+          { label: "Week 4", items: ["Procedures & Functions", "Publishing Extensions", "Debugging"] }
+        ]),
+      mk("Intermediate Dev", "Dev Phase", "#B8873B",
+        "Move from static objects to dynamic, event-driven, reusable logic.",
+        "Extension including a codeunit, event subscriber, report, and proper error handling — reviewed by a senior dev.",
+        [
+          { label: "Week 1", items: ["Codeunits", "Event Subscribers"] },
+          { label: "Week 2", items: ["Reports", "XMLPorts"] },
+          { label: "Week 3", items: ["Permission Sets", "Error Handling"] },
+          { label: "Week 4", items: ["Interfaces", "Best Practices"] }
+        ]),
+      mk("LS Central Development", "Dev Phase", "#B8873B",
+        "Apply AL skills to retail/POS customization and real support work.",
+        "Sign-off as Junior Software Developer, ready for supervised production assignments.",
+        [
+          { label: "Week 1", items: ["POS Commands", "POS Menus & Panels"] },
+          { label: "Week 2", items: ["Custom Actions", "REST API Integration"] },
+          { label: "Week 3", items: ["Code Review", "Deployment Process", "Documentation"] },
+          { label: "Week 4", items: ["Bug Fixing & Production Support", "Checkpoint Review"] }
+        ],
+        "Can independently build & deploy an LS Central POS customization, debug/fix a production bug with minimal guidance, and participate meaningfully in code review.")
+    ]
+  };
+}
+
+function defaultState(){
+  const role = seedRole();
+  const person = { id: uid("p"), name: "New Hire", title: "Junior Software Developer", roleId: role.id, startDate: "", checked: {}, notes: {}, monthDates: {} };
+  return {
+    roles: { [role.id]: role },
+    personnel: { [person.id]: person },
+    ui: { view: "tracker", selectedPersonId: person.id, selectedRoleId: role.id, openMonths: {}, bulkAddOpen: false }
+  };
+}
+
+let state = defaultState();
+function persist(){
+  scheduleCloudSave();
+}
+
+function roleList(){ return Object.values(state.roles); }
+function personList(){ return Object.values(state.personnel); }
+
+function computePersonProgress(person){
+  const role = state.roles[person.roleId];
+  if(!role) return { done:0, total:0 };
+  let total=0, done=0;
+  role.months.forEach(m => m.weeks.forEach(w => w.items.forEach(it => {
+    total++;
+    if(person.checked[it.id]) done++;
+  })));
+  return { done, total };
+}
+function computeMonthProgress(person, month){
+  let total=0, done=0;
+  month.weeks.forEach(w => w.items.forEach(it => {
+    total++;
+    if(person.checked[it.id]) done++;
+  }));
+  return { done, total };
+}
+
+function scheduledYYYYMM(person, monthIndex, monthId){
+  if(!person.monthDates) person.monthDates = {};
+  if(person.monthDates[monthId]) return person.monthDates[monthId];
+  if(!person.startDate) return "";
+  const d = new Date(person.startDate + "T00:00:00");
+  if(isNaN(d.getTime())) return "";
+  d.setMonth(d.getMonth() + monthIndex);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  return `${y}-${m}`;
+}
+function isOverride(person, monthId){ return !!(person.monthDates && person.monthDates[monthId]); }
+function formatYYYYMM(yyyymm){
+  if(!yyyymm) return "";
+  const [y,m] = yyyymm.split("-").map(Number);
+  const d = new Date(y, m-1, 1);
+  return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+}
+
+/* ============================= RENDER ROOT ============================= */
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b => {
+    b.classList.toggle("active", b.dataset.view === state.ui.view);
+  });
+  const tabs = document.getElementById("tabs");
+  if(tabs){
+    tabs.style.opacity = spConnected ? "1" : ".4";
+    tabs.style.pointerEvents = spConnected ? "auto" : "none";
+  }
+  const exportBtn = document.getElementById("exportBtn");
+  const importBtn = document.getElementById("importBtn");
+  if(exportBtn) exportBtn.disabled = !spConnected;
+  if(importBtn) importBtn.disabled = !spConnected;
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  if(!spConnected){ renderGate(app); return; }
+  if(state.ui.view === "tracker") renderTracker(app);
+  else renderBuilder(app);
+}
+
+function renderGate(app){
+  const configured = spConfigured();
+  const wrap = document.createElement("div");
+  wrap.style.gridColumn = "1 / -1";
+  let heading, message;
+  if(!configured){
+    heading = "SharePoint sync not configured";
+    message = "Add your Client ID and site details in SP_CONFIG before this roadmap can be used.";
+  }else if(spConnectError){
+    heading = "Access denied";
+    message = "Could not verify a SharePoint session. Reload the page to try again.";
+  }else{
+    heading = "Connecting to SharePoint…";
+    message = "Access is granted only once this session is verified against SharePoint.";
+  }
+  wrap.innerHTML = `
+    <div class="panel empty-state" style="max-width:480px;margin:60px auto;">
+      <h3>${heading}</h3>
+      <p>${message}</p>
+    </div>
+  `;
+  app.appendChild(wrap);
+}
+
+/* ============================= TRACKER VIEW ============================= */
+function renderTracker(app){
+  const sidebar = document.createElement("aside");
+  const personnelPanel = document.createElement("div");
+  personnelPanel.className = "panel";
+  personnelPanel.innerHTML = `
+    <div class="panel-head">
+      <h3>Personnel</h3>
+      <div style="display:flex;gap:6px;">
+        <button class="ghost icon-only" id="addPersonBtn" title="Add one person">＋ Add</button>
+        <button class="ghost icon-only" id="addMultipleBtn" title="Add multiple people at once">＋＋ Multiple</button>
+      </div>
+    </div>
+    <div id="bulkAddWrap"></div>
+  `;
+  if(state.ui.bulkAddOpen){
+    const roles = roleList();
+    personnelPanel.querySelector("#bulkAddWrap").innerHTML = `
+      <div style="border:1px solid var(--border-soft);border-radius:7px;padding:10px;margin-bottom:12px;background:var(--surface-alt);">
+        <span class="field-label">Assign role to all</span>
+        <select id="bulkRoleSelect" style="margin-bottom:8px;">
+          ${roles.map(r=>`<option value="${r.id}">${escapeHtml(r.name)}</option>`).join("") || '<option value="">No roles available</option>'}
+        </select>
+        <span class="field-label">Names — one per line</span>
+        <textarea id="bulkNames" placeholder="Juan Dela Cruz&#10;Maria Santos&#10;Alex Reyes" style="min-height:90px;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="primary" id="bulkAddConfirm">Add all</button>
+          <button class="ghost" id="bulkAddCancel">Cancel</button>
+        </div>
+      </div>
+    `;
+  }
+  const list = document.createElement("div");
+  list.className = "list";
+  const people = personList();
+  if(people.length === 0){
+    list.innerHTML = `<div class="empty-note">No personnel yet.</div>`;
+  }
+  people.forEach(p => {
+    const role = state.roles[p.roleId];
+    const prog = computePersonProgress(p);
+    const pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+    const item = document.createElement("div");
+    item.className = "list-item" + (state.ui.selectedPersonId === p.id ? " active" : "");
+    item.innerHTML = `
+      <div class="li-top">
+        <span class="li-name">${escapeHtml(p.name)}</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="li-pct">${pct}%</span>
+          <button class="ghost icon-only" data-dup-person="${p.id}" title="Duplicate this person" style="padding:2px 5px;">⧉</button>
+        </div>
+      </div>
+      <span class="li-role">${role ? escapeHtml(role.name) : "No role assigned"}</span>
+      <div class="li-bar-outer"><div class="li-bar-inner" style="width:${pct}%"></div></div>
+    `;
+    item.addEventListener("click", (e) => {
+      if(e.target.closest("[data-dup-person]")) return;
+      state.ui.selectedPersonId = p.id;
+      persist(); render();
+    });
+    list.appendChild(item);
+  });
+  personnelPanel.appendChild(list);
+  sidebar.appendChild(personnelPanel);
+
+  const legendPanel = document.createElement("div");
+  legendPanel.className = "panel";
+  legendPanel.innerHTML = `<div class="panel-head"><h3>Roles in system</h3></div>
+    <div class="list">${roleList().map(r => {
+      const count = personList().filter(p=>p.roleId===r.id).length;
+      return `<div class="empty-note" style="padding:4px 2px;">${escapeHtml(r.name)} <span style="color:var(--text-dim)">— ${count} assigned</span></div>`;
+    }).join("") || '<div class="empty-note">No roles yet.</div>'}</div>`;
+  sidebar.appendChild(legendPanel);
+  app.appendChild(sidebar);
+
+  const main = document.createElement("main");
+  const person = state.personnel[state.ui.selectedPersonId];
+
+  if(!person){
+    main.innerHTML = `<div class="panel empty-state"><h3>No personnel selected</h3></div>`;
+    app.appendChild(main);
+    return;
+  }
+
+  const role = state.roles[person.roleId];
+  const prog = computePersonProgress(person);
+  const pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+
+  const card = document.createElement("div");
+  card.className = "person-card";
+  card.innerHTML = `
+    <div class="person-fields">
+      <div>
+        <span class="field-label">Full name</span>
+        <input type="text" id="pName" value="${escapeAttr(person.name)}">
+      </div>
+      <div>
+        <span class="field-label">Job title</span>
+        <input type="text" id="pTitle" value="${escapeAttr(person.title||'')}">
+      </div>
+      <div>
+        <span class="field-label">Assigned role / roadmap</span>
+        <select id="pRole">
+          ${roleList().map(r => `<option value="${r.id}" ${r.id===person.roleId?'selected':''}>${escapeHtml(r.name)}</option>`).join("")}
+          ${roleList().length===0 ? '<option value="">No roles available</option>' : ''}
+        </select>
+      </div>
+      <div>
+        <span class="field-label">Start date</span>
+        <input type="date" id="pStart" value="${escapeAttr(person.startDate||'')}">
+      </div>
+    </div>
+    <div class="person-progress-row">
+      <div class="ring-pct">${pct}%</div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--text-muted);white-space:nowrap;">${prog.done}/${prog.total} topics</div>
+    </div>
+    <div class="person-actions">
+      <button class="danger-ghost" id="removePersonBtn">Remove this person</button>
+    </div>
+  `;
+  main.appendChild(card);
+
+  card.querySelector("#pName").addEventListener("change", e => { person.name = e.target.value || "Unnamed"; persist(); render(); });
+  card.querySelector("#pTitle").addEventListener("change", e => { person.title = e.target.value; persist(); });
+  card.querySelector("#pStart").addEventListener("change", e => { person.startDate = e.target.value; persist(); });
+  card.querySelector("#pRole").addEventListener("change", e => { person.roleId = e.target.value; persist(); render(); });
+  card.querySelector("#removePersonBtn").addEventListener("click", () => {
+    if(confirm(`Remove ${person.name} and all their tracked progress? This cannot be undone.`)){
+      delete state.personnel[person.id];
+      const remaining = personList();
+      state.ui.selectedPersonId = remaining.length ? remaining[0].id : null;
+      persist(); render();
+    }
+  });
+
+  if(!role){
+    main.innerHTML += `<div class="panel empty-state"><h3>No roadmap assigned</h3></div>`;
+    app.appendChild(main);
+    return;
+  }
+
+  role.months.forEach((m, mIdx) => {
+    main.appendChild(renderMonthCard(m, person, mIdx));
+  });
+
+  app.appendChild(main);
+}
+
+function renderMonthCard(m, person, mIdx){
+  const isOpen = !!state.ui.openMonths[m.id];
+  const monthDiv = document.createElement("div");
+  monthDiv.className = "month-card" + (isOpen ? " open" : "");
+
+  const band = document.createElement("div");
+  band.className = "month-band";
+  band.style.background = m.phaseColor || "#1B3A63";
+  monthDiv.appendChild(band);
+
+  const prog = computeMonthProgress(person, m);
+  const pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+  const sched = scheduledYYYYMM(person, mIdx, m.id);
+  const overridden = isOverride(person, m.id);
+
+  const head = document.createElement("div");
+  head.className = "month-head";
+  head.innerHTML = `
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;">
+        <span class="tag-pill" style="margin-bottom:0;background:${hexToBg(m.phaseColor)};color:${m.phaseColor}">${escapeHtml(m.phaseLabel||"Phase")}</span>
+        <input type="month" class="sched-input" value="${escapeAttr(sched)}" title="Scheduled month for this step — click to adjust">
+        ${overridden ? `<button class="ghost icon-only" data-clear-sched="${m.id}" title="Reset to auto-calculated from start date" style="padding:2px 6px;font-size:11px;">↺ auto</button>` : ""}
+      </div>
+      <h2>${escapeHtml(m.title)}<span class="chevron">▸</span></h2>
+      <div class="sub">${escapeHtml(m.subtitle||"")}</div>
+    </div>
+    <div class="month-right">
+      <div><div class="month-pct">${pct}%</div><div style="font-size:10.5px;color:var(--text-dim);text-align:right;">${prog.done}/${prog.total}</div></div>
+    </div>
+  `;
+  head.querySelector(".sched-input").addEventListener("change", e => {
+    if(!person.monthDates) person.monthDates = {};
+    if(e.target.value){ person.monthDates[m.id] = e.target.value; }
+    else { delete person.monthDates[m.id]; }
+    persist(); render();
+  });
+  const clearBtn = head.querySelector("[data-clear-sched]");
+  if(clearBtn) clearBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    if(person.monthDates) delete person.monthDates[m.id];
+    persist(); render();
+  });
+  head.addEventListener("click", (e) => {
+    if(e.target.closest("input, textarea, select, button")) return;
+    state.ui.openMonths[m.id] = !state.ui.openMonths[m.id];
+    persist(); render();
+  });
+  monthDiv.appendChild(head);
+
+  const body = document.createElement("div");
+  body.className = "month-body";
+
+  m.weeks.forEach(w => {
+    const wl = document.createElement("div");
+    wl.className = "week-label";
+    wl.textContent = w.label;
+    body.appendChild(wl);
+    const topicList = document.createElement("div");
+    w.items.forEach(it => {
+      const checked = !!person.checked[it.id];
+      const row = document.createElement("label");
+      row.className = "topic" + (checked ? " checked" : "");
+      row.innerHTML = `<input type="checkbox" ${checked ? "checked":""}/><span>${escapeHtml(it.text)}</span>`;
+      row.querySelector("input").addEventListener("change", e => {
+        person.checked[it.id] = e.target.checked;
+        persist(); render();
+      });
+      topicList.appendChild(row);
+    });
+    body.appendChild(topicList);
+  });
+
+  if(m.deliverable){
+    const box = document.createElement("div");
+    box.className = "meta-box";
+    box.innerHTML = `<div class="label">Deliverable</div><p>${escapeHtml(m.deliverable)}</p>`;
+    body.appendChild(box);
+  }
+  if(m.checkpoint){
+    const box = document.createElement("div");
+    box.className = "meta-box";
+    box.innerHTML = `<div class="label">Checkpoint gate</div><p>${escapeHtml(m.checkpoint)}</p>`;
+    body.appendChild(box);
+  }
+
+  const notesLabel = document.createElement("span");
+  notesLabel.className = "notes-label";
+  notesLabel.textContent = "Notes";
+  body.appendChild(notesLabel);
+  const textarea = document.createElement("textarea");
+  textarea.className = "notes-area";
+  textarea.placeholder = "Mentor or trainee notes for this month...";
+  textarea.value = person.notes[m.id] || "";
+  textarea.addEventListener("input", e => { person.notes[m.id] = e.target.value; persist(); });
+  body.appendChild(textarea);
+
+  monthDiv.appendChild(body);
+  return monthDiv;
+}
+
+/* ============================= BUILDER VIEW ============================= */
+function renderBuilder(app){
+  const sidebar = document.createElement("aside");
+  const rolesPanel = document.createElement("div");
+  rolesPanel.className = "panel";
+  rolesPanel.innerHTML = `<div class="panel-head"><h3>Roles / Roadmaps</h3><button class="ghost icon-only" id="addRoleBtn" title="Add role">＋ Add</button></div>`;
+  const list = document.createElement("div");
+  list.className = "list";
+  const roles = roleList();
+  if(roles.length === 0){
+    list.innerHTML = `<div class="empty-note">No roles yet.</div>`;
+  }
+  roles.forEach(r => {
+    const item = document.createElement("div");
+    item.className = "list-item" + (state.ui.selectedRoleId === r.id ? " active" : "");
+    item.innerHTML = `<div class="li-top"><span class="li-name">${escapeHtml(r.name)}</span></div><span class="li-role">${r.months.length} month${r.months.length===1?'':'s'}</span>`;
+    item.addEventListener("click", () => { state.ui.selectedRoleId = r.id; persist(); render(); });
+    list.appendChild(item);
+  });
+  rolesPanel.appendChild(list);
+  sidebar.appendChild(rolesPanel);
+  app.appendChild(sidebar);
+
+  rolesPanel.querySelector("#addRoleBtn").addEventListener("click", () => {
+    const newRole = { id: uid("role"), name: "New Role", months: [] };
+    state.roles[newRole.id] = newRole;
+    state.ui.selectedRoleId = newRole.id;
+    persist(); render();
+  });
+
+  const main = document.createElement("main");
+  const role = state.roles[state.ui.selectedRoleId];
+
+  if(!role){
+    main.innerHTML = `<div class="panel empty-state"><h3>No role selected</h3></div>`;
+    app.appendChild(main);
+    return;
+  }
+
+  const header = document.createElement("div");
+  header.className = "person-card";
+  header.innerHTML = `
+    <span class="field-label">Role / roadmap name</span>
+    <div class="builder-row">
+      <input type="text" id="roleName" value="${escapeAttr(role.name)}">
+      <button class="danger-ghost" id="removeRoleBtn">Delete role</button>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="primary" id="addMonthBtn">＋ Add month / phase step</button>
+    </div>
+  `;
+  main.appendChild(header);
+  header.querySelector("#roleName").addEventListener("change", e => { role.name = e.target.value || "Untitled role"; persist(); render(); });
+  header.querySelector("#removeRoleBtn").addEventListener("click", () => {
+    const assignedCount = personList().filter(p => p.roleId === role.id).length;
+    const warn = assignedCount ? ` ${assignedCount} personnel are currently assigned to this role.` : "";
+    if(confirm(`Delete "${role.name}"?${warn} This cannot be undone.`)){
+      delete state.roles[role.id];
+      const remaining = roleList();
+      state.ui.selectedRoleId = remaining.length ? remaining[0].id : null;
+      persist(); render();
+    }
+  });
+  header.querySelector("#addMonthBtn").addEventListener("click", () => {
+    const color = COLORS[role.months.length % COLORS.length].hex;
+    role.months.push({
+      id: uid("m"), title: `New step ${role.months.length+1}`, phaseLabel: "Phase",
+      phaseColor: color, subtitle: "", deliverable: "", checkpoint: "",
+      weeks: [{ id: uid("w"), label: "Week 1", items: [] }]
+    });
+    persist(); render();
+  });
+
+  role.months.forEach((m, mIdx) => {
+    main.appendChild(renderMonthEditor(role, m, mIdx));
+  });
+
+  app.appendChild(main);
+}
+
+function renderMonthEditor(role, m, mIdx){
+  const isOpen = !!state.ui.openMonths[m.id];
+  const monthDiv = document.createElement("div");
+  monthDiv.className = "month-card" + (isOpen ? " open" : "");
+  const band = document.createElement("div");
+  band.className = "month-band";
+  band.style.background = m.phaseColor;
+  monthDiv.appendChild(band);
+
+  const head = document.createElement("div");
+  head.className = "month-head";
+  head.innerHTML = `
+    <div style="flex:1;">
+      <span class="tag-pill" style="background:${hexToBg(m.phaseColor)};color:${m.phaseColor}">${escapeHtml(m.phaseLabel||"Phase")}</span>
+      <h2>${escapeHtml(m.title)}<span class="chevron">▸</span></h2>
+      <div class="sub">${escapeHtml(m.subtitle||"")}</div>
+    </div>
+    <div class="month-toolbar">
+      <button class="ghost icon-only" data-act="up" title="Move up" ${mIdx===0?'disabled':''}>↑</button>
+      <button class="ghost icon-only" data-act="down" title="Move down" ${mIdx===role.months.length-1?'disabled':''}>↓</button>
+      <button class="danger-ghost icon-only" data-act="del" title="Delete month">✕</button>
+    </div>
+  `;
+  head.addEventListener("click", (e) => {
+    const actBtn = e.target.closest("button[data-act]");
+    if(actBtn){
+      const act = actBtn.dataset.act;
+      if(act === "up"){ [role.months[mIdx-1], role.months[mIdx]] = [role.months[mIdx], role.months[mIdx-1]]; persist(); render(); }
+      if(act === "down"){ [role.months[mIdx+1], role.months[mIdx]] = [role.months[mIdx], role.months[mIdx+1]]; persist(); render(); }
+      if(act === "del"){ if(confirm(`Delete "${m.title}"?`)){ role.months.splice(mIdx,1); persist(); render(); } }
+      return;
+    }
+    if(e.target.closest("input, textarea, select")) return;
+    state.ui.openMonths[m.id] = !state.ui.openMonths[m.id];
+    persist(); render();
+  });
+  monthDiv.appendChild(head);
+
+  const body = document.createElement("div");
+  body.className = "month-body";
+
+  body.innerHTML = `
+    <div class="field-grid">
+      <div><span class="field-label">Title</span><input type="text" data-f="title" value="${escapeAttr(m.title)}"></div>
+      <div><span class="field-label">Phase label</span><input type="text" data-f="phaseLabel" value="${escapeAttr(m.phaseLabel||'')}"></div>
+      <div class="full"><span class="field-label">Subtitle / objective</span><input type="text" data-f="subtitle" value="${escapeAttr(m.subtitle||'')}"></div>
+      <div class="full">
+        <span class="field-label">Phase color</span>
+        <div class="color-select-row" id="colorRow">
+          ${COLORS.map(c => `<div class="color-swatch ${c.hex===m.phaseColor?'selected':''}" style="background:${c.hex}" data-hex="${c.hex}" title="${c.name}"></div>`).join("")}
+        </div>
+      </div>
+      <div class="full"><span class="field-label">Deliverable</span><textarea data-f="deliverable">${escapeHtml(m.deliverable||'')}</textarea></div>
+      <div class="full"><span class="field-label">Checkpoint gate (optional)</span><textarea data-f="checkpoint">${escapeHtml(m.checkpoint||'')}</textarea></div>
+    </div>
+    <div class="divider"></div>
+    <span class="field-label">Weeks & topics</span>
+    <div id="weeksWrap"></div>
+    <button class="ghost" id="addWeekBtn" style="margin-top:10px;">＋ Add week</button>
+  `;
+
+  body.querySelectorAll("[data-f]").forEach(el => {
+    el.addEventListener("change", e => { m[e.target.dataset.f] = e.target.value; persist(); render(); });
+  });
+  body.querySelector("#colorRow").addEventListener("click", e => {
+    const sw = e.target.closest(".color-swatch");
+    if(!sw) return;
+    m.phaseColor = sw.dataset.hex;
+    persist(); render();
+  });
+
+  const weeksWrap = body.querySelector("#weeksWrap");
+  m.weeks.forEach((w, wIdx) => {
+    const wb = document.createElement("div");
+    wb.className = "week-block";
+    wb.innerHTML = `
+      <div class="week-block-head">
+        <input type="text" value="${escapeAttr(w.label)}" data-week-label>
+        <div class="month-toolbar">
+          <button class="ghost icon-only" data-act="wup" title="Move up" ${wIdx===0?'disabled':''}>↑</button>
+          <button class="ghost icon-only" data-act="wdown" title="Move down" ${wIdx===m.weeks.length-1?'disabled':''}>↓</button>
+          <button class="danger-ghost icon-only" data-act="wdel" title="Delete week">✕</button>
+        </div>
+      </div>
+      <div class="topics-edit"></div>
+      <div class="add-topic-row">
+        <input type="text" placeholder="New topic name..." data-new-topic>
+        <button class="ghost" data-add-topic>＋ Add</button>
+      </div>
+    `;
+    wb.querySelector("[data-week-label]").addEventListener("change", e => { w.label = e.target.value; persist(); });
+    wb.querySelector('[data-act="wup"]').addEventListener("click", () => { [m.weeks[wIdx-1], m.weeks[wIdx]] = [m.weeks[wIdx], m.weeks[wIdx-1]]; persist(); render(); });
+    wb.querySelector('[data-act="wdown"]').addEventListener("click", () => { [m.weeks[wIdx+1], m.weeks[wIdx]] = [m.weeks[wIdx], m.weeks[wIdx+1]]; persist(); render(); });
+    wb.querySelector('[data-act="wdel"]').addEventListener("click", () => { if(confirm(`Delete "${w.label}" and its topics?`)){ m.weeks.splice(wIdx,1); persist(); render(); } });
+
+    const topicsEdit = wb.querySelector(".topics-edit");
+    w.items.forEach((it, iIdx) => {
+      const row = document.createElement("div");
+      row.className = "edit-topic-row";
+      row.innerHTML = `<input type="text" value="${escapeAttr(it.text)}"><button class="danger-ghost icon-only" title="Remove topic">✕</button>`;
+      row.querySelector("input").addEventListener("change", e => { it.text = e.target.value; persist(); });
+      row.querySelector("button").addEventListener("click", () => { w.items.splice(iIdx,1); persist(); render(); });
+      topicsEdit.appendChild(row);
+    });
+
+    const newTopicInput = wb.querySelector("[data-new-topic]");
+    const addTopic = () => {
+      const v = newTopicInput.value.trim();
+      if(!v) return;
+      w.items.push({ id: uid("i"), text: v });
+      persist(); render();
+    };
+    wb.querySelector("[data-add-topic]").addEventListener("click", addTopic);
+    newTopicInput.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); addTopic(); } });
+
+    weeksWrap.appendChild(wb);
+  });
+
+  body.querySelector("#addWeekBtn").addEventListener("click", () => {
+    m.weeks.push({ id: uid("w"), label: `Week ${m.weeks.length+1}`, items: [] });
+    persist(); render();
+  });
+
+  monthDiv.appendChild(body);
+  return monthDiv;
+}
+
+/* ============================= HELPERS ============================= */
+function escapeHtml(s){ return String(s||"").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function escapeAttr(s){ return String(s||"").replace(/"/g, "&quot;"); }
+function hexToBg(hex){
+  if(!hex) return "#EEF1F6";
+  const h = hex.replace("#","");
+  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},0.12)`;
+}
+
+/* ============================= GLOBAL ACTIONS ============================= */
+document.getElementById("tabs").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-view]");
+  if(!btn) return;
+  state.ui.view = btn.dataset.view;
+  persist(); render();
+});
+
+document.body.addEventListener("click", e => {
+  if(e.target.id === "addPersonBtn"){
+    const roles = roleList();
+    const p = { id: uid("p"), name: "New Hire", title: "", roleId: roles.length ? roles[0].id : "", startDate: "", checked: {}, notes: {}, monthDates: {} };
+    state.personnel[p.id] = p;
+    state.ui.selectedPersonId = p.id;
+    persist(); render();
+  }
+  if(e.target.id === "addMultipleBtn"){
+    state.ui.bulkAddOpen = !state.ui.bulkAddOpen;
+    render();
+  }
+  if(e.target.id === "bulkAddCancel"){
+    state.ui.bulkAddOpen = false;
+    render();
+  }
+  if(e.target.id === "bulkAddConfirm"){
+    const roleSelect = document.getElementById("bulkRoleSelect");
+    const namesArea = document.getElementById("bulkNames");
+    const roleId = roleSelect ? roleSelect.value : "";
+    const names = namesArea ? namesArea.value.split("\n").map(s => s.trim()).filter(Boolean) : [];
+    if(names.length === 0){ alert("Enter at least one name, one per line."); return; }
+    let lastId = null;
+    names.forEach(name => {
+      const p = { id: uid("p"), name, title: "", roleId, startDate: "", checked: {}, notes: {}, monthDates: {} };
+      state.personnel[p.id] = p;
+      lastId = p.id;
+    });
+    state.ui.selectedPersonId = lastId;
+    state.ui.bulkAddOpen = false;
+    persist(); render();
+  }
+  if(e.target.closest && e.target.closest("[data-dup-person]")){
+    const id = e.target.closest("[data-dup-person]").dataset.dupPerson;
+    const orig = state.personnel[id];
+    if(orig){
+      const copy = { id: uid("p"), name: orig.name + " (copy)", title: orig.title, roleId: orig.roleId, startDate: "", checked: {}, notes: {}, monthDates: {} };
+      state.personnel[copy.id] = copy;
+      state.ui.selectedPersonId = copy.id;
+      persist(); render();
+    }
+  }
+});
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "roadmap-data.json"; a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try{
+      const parsed = JSON.parse(evt.target.result);
+      if(!parsed.roles || !parsed.personnel) throw new Error("bad shape");
+      state = parsed;
+      if(!state.ui) state.ui = { view:"tracker", selectedPersonId:null, selectedRoleId:null, openMonths:{}, bulkAddOpen:false };
+      if(state.ui.bulkAddOpen === undefined) state.ui.bulkAddOpen = false;
+      persist(); render();
+    }catch(err){ alert("Could not read that file — make sure it's a roadmap-data.json export from this app."); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+render();
+setSyncStatus(spConfigured() ? "connecting…" : "not configured");
+connectToSharePoint();
+</script>
+</body>
+</html>
