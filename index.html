@@ -315,6 +315,7 @@ let spDriveId = null;
 let spConnected = false;
 let spConnectError = null;
 let spNeedsSignIn = false;
+let spLibraryMissing = false;
 let cloudSyncTimeout = null;
 
 function spConfigured(){
@@ -344,6 +345,16 @@ function initMsal(){
 async function connectToSharePoint(){
   if(!spConfigured()){
     spConnected = false;
+    render();
+    return;
+  }
+  if(typeof msal === "undefined"){
+    // The msal-browser script from Microsoft's CDN never loaded — commonly
+    // caused by an ad/tracker blocker (e.g. Brave Shields) blocking
+    // alcdn.msauth.net, a network/firewall block, or a transient CDN issue.
+    spConnected = false;
+    spLibraryMissing = true;
+    setSyncStatus("library blocked");
     render();
     return;
   }
@@ -643,6 +654,9 @@ function renderGate(app){
   if(!configured){
     heading = "SharePoint sync not configured";
     message = "Add your MSAL_CLIENT_ID and SharePoint site details near the top of the script before this roadmap can be used.";
+  }else if(spLibraryMissing){
+    heading = "Sign-in library blocked";
+    message = "The Microsoft sign-in library (from alcdn.msauth.net) failed to load, so sign-in can't start. This is usually caused by a browser privacy/ad blocker (e.g. Brave Shields), a network filter, or a firewall blocking Microsoft's CDN. Try allowing this site in your browser's shield/blocker settings, then reload.";
   }else if(spConnectError){
     heading = "Access denied";
     message = "Could not verify a SharePoint session. Reload the page to try again.";
